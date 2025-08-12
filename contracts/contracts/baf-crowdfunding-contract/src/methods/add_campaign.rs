@@ -3,7 +3,7 @@ use soroban_sdk::{Address, Env, Vec};
 use crate::{
     events,
     storage::{
-        admin::get_admin, campaign::{has_campaign, set_campaign}, structs::campaign::Campaign, types::error::Error
+        admin::get_admin, campaign::{has_campaign, set_campaign}, structs::campaign::Campaign, types::{error::Error}
     },
 };
 
@@ -21,7 +21,7 @@ pub fn add_campaign(env: &Env, creator: Address, goal: i128, min_donation: i128)
         min_donation,
         total_raised: 0,
         supporters: 0,
-        supporters_list: Vec::new(&env),
+        supporters_list: Vec::new(env)
     };
 
     set_campaign(&env, &creator, &campaign);

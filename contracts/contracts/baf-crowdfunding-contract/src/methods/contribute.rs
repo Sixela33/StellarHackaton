@@ -6,11 +6,10 @@ use crate::{
         campaign::{
             get_campaign, 
             has_campaign, 
-            set_campaign,
-            add_supporter
+            set_campaign
         }, 
-        contribution::set_contribution, 
-        types::error::Error
+            contribution::set_contribution, 
+            types::error::Error
     }
 };
 
@@ -39,10 +38,10 @@ pub fn contribute(env: &Env, contributor: Address, campaign_address: Address, am
 
     campaign.total_raised += amount;
     campaign.supporters += 1;
+    campaign.supporters_list.push_back(contributor.clone());
     
     set_campaign(env, &campaign_address, &campaign);
     set_contribution(env, &campaign_address, &contributor, amount);
-    add_supporter(env, &campaign_address, &contributor)?;
     events::contribute::add_contribute(&env, &contributor, &campaign_address, &amount);
 
     Ok(())

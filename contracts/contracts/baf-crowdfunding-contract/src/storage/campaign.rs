@@ -27,11 +27,3 @@ pub(crate) fn remove_campaign(env: &Env, creator: &Address) {
 
     env.storage().instance().remove(&key);
 }
-
-pub(crate) fn add_supporter(env: &Env, campaign_address: &Address, supporter: &Address) -> Result<(), Error> {
-    let mut campaign = get_campaign(env, campaign_address)?;
-
-    campaign.supporters_list.push_back(supporter.clone());
-
-    Ok(())
-}

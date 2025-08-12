@@ -4,7 +4,11 @@ use crate::{
     events,
     methods::token::token_transfer,
     storage::{
-        campaign::{get_campaign, remove_campaign},
+        campaign::{
+            get_campaign, 
+            remove_campaign
+        }, 
+        contribution::remove_contribution, 
         types::error::Error
     }
 };
@@ -25,11 +29,15 @@ pub fn withdraw(env: &Env, creator: Address) -> Result<(), Error> {
         &campaign.total_raised
     )?;
 
-    
-
     remove_campaign(env, &creator);
+    let contributors = campaign.supporters_list;
+    for i in 0 .. contributors.len() {
+        if let Some(contributor) = contributors.get(i) {
+            remove_contribution(env, &creator, &contributor);
+        }
+    }
 
     events::campaign::withdraw(&env, &creator, campaign.total_raised);
     
-    Ok(())
+    Ok(())   
 }
