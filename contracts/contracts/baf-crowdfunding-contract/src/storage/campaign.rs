@@ -37,3 +37,12 @@ pub(crate) fn get_next_id(env: &Env) -> Result<u32, Error> {
 
     Ok(id)
 }
+
+pub(crate) fn get_id(env: &Env) -> Result<u32, Error> {
+    let key = DataKey::CampainID;
+
+    match env.storage().instance().get(&key) {
+        Some(id) => Ok(id),
+        None => Err(Error::CampaignNotFound),
+    }
+}

@@ -10,6 +10,7 @@ use crate::{
         withdraw::withdraw
     },
     storage::{
+        campaign::get_id, 
         structs::campaign::Campaign,
         types::error::Error
     },
@@ -30,6 +31,10 @@ impl CrowdfundingContract {
 
     pub fn get_campaign(env: Env, campaign_id: u32) -> Result<Campaign, Error> {
         get_campaign(&env, &campaign_id)
+    }
+
+    pub fn get_max_campaign_index(env: Env) -> Result<u32, Error> {
+        get_id(&env)
     }
 
     pub fn contribute(env: Env, contributor: Address, campaign_id: u32, amount: i128) -> Result<(), Error> {
