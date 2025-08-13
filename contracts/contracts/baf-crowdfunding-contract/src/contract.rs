@@ -24,8 +24,8 @@ impl CrowdfundingContract {
         initialize(&env, admin, token)
     }
 
-    pub fn create_campaign(env: Env, creator: Address, goal: i128, min_donation: i128) -> Result<(), Error> {
-        add_campaign(&env, creator, goal, min_donation)
+    pub fn create_campaign(env: Env, campaign: Campaign) -> Result<(), Error> {
+        add_campaign(&env, campaign)
     }
 
     pub fn get_campaign(env: Env, campaign_id: u32) -> Result<Campaign, Error> {
