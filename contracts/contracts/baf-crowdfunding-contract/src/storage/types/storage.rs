@@ -5,6 +5,8 @@ use soroban_sdk::{contracttype, Address};
 pub enum DataKey {
     Admin,
     Token,
-    Campaign(Address), // Para buscar campañas por su administrador
-    Contribution(Address, Address), // (campaign_address, contributor)
+    Campaign(u32), // Para buscar campañas por su administrador
+    Contribution(u32, Address), // (campaign_id, contributor)
+    Role(Address, u32), // (user_address, campaign_id)
+    CampainID
 }

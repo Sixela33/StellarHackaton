@@ -5,26 +5,26 @@ use crate::{
     storage::{
         campaign::{
             get_campaign, 
-            has_campaign, 
+            campain_exists, 
             set_campaign
         }, 
-            contribution::set_contribution, 
-            types::error::Error
+        contribution::set_contribution, 
+        types::error::Error
     }
 };
 
-pub fn contribute(env: &Env, contributor: Address, campaign_address: Address, amount: i128) -> Result<(), Error> {
+pub fn contribute(env: &Env, contributor: Address, campaign_id: u32, amount: i128) -> Result<(), Error> {
     contributor.require_auth();
 
     if amount < 0 {
         return Err(Error::AmountMustBePositive);
     }
 
-    if !has_campaign(env, &campaign_address) {
+    if !campain_exists(env, &campaign_id) {
         return Err(Error::CampaignNotFound);
     }
 
-    let mut campaign = get_campaign(env, &campaign_address)?;
+    let mut campaign = get_campaign(env, &campaign_id)?;
 
     if campaign.min_donation > amount {
         return Err(Error::ContributionBelowMinimum);
@@ -40,9 +40,9 @@ pub fn contribute(env: &Env, contributor: Address, campaign_address: Address, am
     campaign.supporters += 1;
     campaign.supporters_list.push_back(contributor.clone());
     
-    set_campaign(env, &campaign_address, &campaign);
-    set_contribution(env, &campaign_address, &contributor, amount);
-    events::contribute::add_contribute(&env, &contributor, &campaign_address, &amount);
+    set_campaign(env, &campaign_id, &campaign);
+    set_contribution(env, &campaign_id, &contributor, amount);
+    events::contribute::add_contribute(&env, &contributor, &campaign_id, &amount);
 
     Ok(())
 }

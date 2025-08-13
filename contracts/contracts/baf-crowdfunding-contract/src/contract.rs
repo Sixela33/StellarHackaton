@@ -28,19 +28,19 @@ impl CrowdfundingContract {
         add_campaign(&env, creator, goal, min_donation)
     }
 
-    pub fn get_campaign(env: Env, campaign_address: Address) -> Result<Campaign, Error> {
-        get_campaign(&env, &campaign_address)
+    pub fn get_campaign(env: Env, campaign_id: u32) -> Result<Campaign, Error> {
+        get_campaign(&env, &campaign_id)
     }
 
-    pub fn contribute(env: Env, contributor: Address, campaign_address: Address, amount: i128) -> Result<(), Error> {
-        contribute(&env, contributor, campaign_address, amount)
+    pub fn contribute(env: Env, contributor: Address, campaign_id: u32, amount: i128) -> Result<(), Error> {
+        contribute(&env, contributor, campaign_id, amount)
     }
 
-    pub fn withdraw(env: Env, creator: Address) -> Result<(), Error> {
-        withdraw(&env, creator)
+    pub fn withdraw(env: Env, campaign_id: u32, reciever: Address) -> Result<(), Error> {
+        withdraw(&env, campaign_id, reciever)
     }
 
-    pub fn refund(env: Env, contributor: Address, campaign_address: Address) -> Result<(), Error> {
-        refund(&env, contributor, campaign_address)
+    pub fn refund(env: Env, contributor: Address, campaign_id: u32) -> Result<(), Error> {
+        refund(&env, contributor, campaign_id)
     }
 }
