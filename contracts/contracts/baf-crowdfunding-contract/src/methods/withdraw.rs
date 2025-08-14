@@ -29,7 +29,7 @@ pub fn withdraw(env: &Env, campaign_id: u32, milestone_id: u32) -> Result<(), Er
         return Err(Error::CampaignGoalNotReached);
     }
 
-    if !(milestone.status == MilestoneStatus::AVAILABLE) {
+    if !(milestone.status == MilestoneStatus::AVAILABLE && milestone.approved) {
         return Err(Error::MilestoneNotAvailableToWithdraw)
     }
 

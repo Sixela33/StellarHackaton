@@ -3,6 +3,7 @@ use soroban_sdk::{contract, contractimpl, Env, Address};
 use crate::{
     methods::{
         add_campaign::add_campaign, 
+        approve_liberation::approve_liberation, 
         contribute::contribute, 
         get_campaign::get_campaign, 
         initialize::initialize, 
@@ -34,7 +35,7 @@ impl CrowdfundingContract {
     }
 
     pub fn create_campaign(env: Env, campaign: Campaign) -> Result<(), Error> {
-        add_campaign(&env, campaign)
+        add_campaign(&env, campaign, false)
     }
 
     pub fn get_campaign(env: Env, campaign_id: u32) -> Result<Campaign, Error> {
@@ -71,5 +72,9 @@ impl CrowdfundingContract {
 
         remove_role(&env, Role::Judge, user);
         Ok(())
+    }
+
+    pub fn approve_liberation(env: Env, sender: Address, campaign_id: u32, milestone_id: u32) -> Result<(), Error>  {
+        approve_liberation(env, sender, campaign_id, milestone_id)
     }
 }

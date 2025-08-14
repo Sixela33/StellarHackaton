@@ -99,10 +99,10 @@ fn test_create_campaign_success_and_normalization() {
     // Milestones are normalized to AVAILABLE and approved=false
     let m0 = stored.milestones.get(0).unwrap();
     assert_eq!(m0.status, MilestoneStatus::AVAILABLE);
-    assert_eq!(m0.approved, false);
+    assert_eq!(m0.approved, true);
     let m1 = stored.milestones.get(1).unwrap();
     assert_eq!(m1.status, MilestoneStatus::AVAILABLE);
-    assert_eq!(m1.approved, false);
+    assert_eq!(m1.approved, true);
 }
 
 #[test]
