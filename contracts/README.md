@@ -1,226 +1,143 @@
-# Crowdfunding Contract - Soroban Workshop
+# ImpulsAr Crowdfunding Contract (Soroban)
 
-**Technical Bootcamp Part I: Soroban & Architecture Fundamentals**
+This folder contains the Soroban smart contract used by ImpulsAr to list donation proposals as milestone‑based crowdfunding campaigns.
 
-## Introducción
-
-Este proyecto es una demostración práctica para aprender conceptos fundamentales de Soroban y el desarrollo de contratos inteligentes.  
-Fue creado para el workshop de BAF en el marco del Stellar GIVE Hackathon Argentina 2025.
-
-Se trata de un contrato básico de crowdfunding en Rust que permite a creadores lanzar campañas con metas de recaudación, aceptar contribuciones, y gestionar retiros y reembolsos.
+- Workspace manifest: `contracts/Cargo.toml`
+- Crate: `contracts/baf-crowdfunding-contract`
+- SDK: `soroban-sdk = 22.0.0`
 
 ---
 
-## Setup
+## Concept
 
-### Rust Toolchain
+- Admin initializes the contract and can add/remove judges and list new campaigns.
+- Donors contribute to a campaign using the configured token (e.g., native XLM).
+- Each campaign has milestones with receivers. Judges approve liberations; receivers withdraw when the campaign is fully funded and milestones are available and approved.
+- Contributors can refund while the campaign is not COMPLETE.
 
-Descarga e instala Rust siguiendo la guía oficial:
-https://developers.stellar.org/docs/build/smart-contracts/getting-started/setup
+```mermaid
+classDiagram
+  class Campaign {
+    i128 goal
+    i128 distributed
+    i128 min_donation
+    i128 total_raised
+    u32  supporters
+    Vec<Milestone> milestones
+    CampaignStatus status
+  }
+  class Milestone {
+    String description
+    MilestoneStatus status
+    String evidence
+    bool approved
+    i128 amount
+    Address reciever
+  }
+  class StorageKeys {
+    <<DataKey>> Admin, Token, Campaign(u32), Contribution(u32, Address), Role(Role, Address), CampainID
+  }
+  class Enums {
+    <<CampaignStatus>> RUNNING, COMPLETE, CANCELED
+    <<MilestoneStatus>> AVAILABLE, REQUESTED, FREED
+  }
+```
 
-### Target
+---
 
-Luego instala el target WASM según tu versión de Rustc:
+## Build and deploy
+
+1) Install toolchain targets:
 
 ```bash
-# Si tienes rustc 1.85 o superior
+# rustc >= 1.85
 rustup target add wasm32v1-none
-
-# Si tienes rustc menor a 1.85
+# rustc < 1.85
 rustup target add wasm32-unknown-unknown
 ```
 
-### Instalar Stellar CLI
+2) Build:
 
 ```bash
-cargo install --locked stellar-cli@23.0.0
+# from repo root
+cargo build --manifest-path contracts/Cargo.toml --target wasm32v1-none --release
 ```
 
----
-
-## Extensiones para VS Code
-
-1️⃣ Even Better TOML  
-2️⃣ CodeLLDB (debugging paso a paso)  
-3️⃣ Rust Analyzer (soporte para Rust)
-
----
-
-## Comandos básicos para crear y desplegar el contrato
-
-### Deploy en Testnet:
-
-🔑 Generar Keypair para las pruebas
+3) Optimize:
 
 ```bash
-stellar keys generate --global alice --network testnet --fund
+stellar contract optimize \
+  --wasm contracts/target/wasm32v1-none/release/baf_crowdfunding_contract.wasm
 ```
 
-📌 Pasos para el deploy:
-1️⃣ Compilar el contrato y generar el archivo .wasm
-
-```bash
-# Si tienes rustc 1.85 o superior
-  cargo build --target wasm32v1-none --release
-
-# Si tienes rustc menor a 1.85
-  cargo build --target wasm32-unknown-unknown --release
-```
-
-2️⃣ Optimizar el contrato para reducir su tamaño en bytes
-
-```bash
-# Si tienes rustc 1.85 o superior
-   stellar contract optimize --wasm target/wasm32v1-none/release/baf_crowdfunding_contract.wasm
-
-# Si tienes rustc menor a 1.85
- stellar contract optimize --wasm target/wasm32-unknown-unknown/release/<contract_name>.wasm
-```
-
-1️⃣ Generar Admin Keypair para las pruebas
+4) Deploy and initialize on Testnet:
 
 ```bash
 stellar keys generate --global admin --network testnet --fund
-```
+stellar contract asset id --asset native --network testnet   # XLM asset id
 
-2️⃣ Obtener el token address de XLM para usar en el contrato
-
-```bash
-stellar contract asset id --asset native --network testnet
-```
-
-_Nota: devuelve `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`_
-
-4️⃣ Obtener el admin public key
-
-```bash
-stellar keys address admin
-```
-
-_Nota: devuelve `GDXAECCYWYW2QKQDTGVQUTC6CQEQR3REC3PKZKXOP76PJJ6V3FRYXCO3`_
-
-5️⃣ Deployar el contrato en la Testnet y obtener el contract ID
-
-```bash
-    stellar contract deploy `
-        --wasm target/wasm32v1-none/release/baf_crowdfunding_contract.optimized.wasm `
-        --source admin `
-        --network testnet `
-        -- `
-        --admin GAMM7KCH3NE6NDV72WFZJ4WQGBDQC4DF5B665DA4L2UD77PSQY3KUWZO
-        --token CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC
-```
-
-_Nota: devuelve `CBAH4Z5CNELXMN7PVW2SAAB6QVOID34SAQAFHJF7Q7JUNACRQEJX66MB`_
-
----
-
-## Funciones del Contrato
-
-| Función           | Descripción                                                              | Firma                                                                                  |
-| ----------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
-| `__constructor`   | Inicializa el contrato con admin y token                                 | `(admin: address, token: address) -> Result<(), Error>`                                |
-| `create_campaign` | Crea una campaña con goal y min_donation                                 | `(creator: address, goal: i128, min_donation: i128) -> Result<(), Error>`              |
-| `get_campaign`    | Obtiene los datos de una campaña                                         | `(campaign_address: address) -> Result<Campaign, Error>`                               |
-| `contribute`      | Permite a un usuario aportar a una campaña                               | `(contributor: address, campaign_address: address, amount: i128) -> Result<(), Error>` |
-| `withdraw`        | Permite al creador retirar fondos si goal fue alcanzado                  | `(creator: address) -> Result<(), Error>`                                              |
-| `refund`          | Permite a un contribuyente retirar su aporte si la campaña no tuvo éxito | `(contributor: address, campaign_address: address) -> Result<(), Error>`               |
-
----
-
-## Estructuras Principales
-
-```rust
-#[contracttype]
-struct Campaign {
-  goal: i128,
-  min_donation: i128,
-  supporters: u32,
-  total_raised: i128,
-}
-
-#[contracttype]
-struct Contribution {
-  amount: i128,
-}
-
-#[contracttype]
-enum DataKey {
-  Admin(),
-  Token(),
-  Campaign(address),
-  Contribution(address, address),
-}
-
-#[contracterror]
-enum Errors {
-  ContractInitialized = 0,
-  ContractNotInitialized = 1,
-  MathOverflow = 2,
-  MathUnderflow = 3,
-  CampaignNotFound = 4,
-  CampaignGoalExceeded = 5,
-  ContributionBelowMinimum = 6,
-  AmountMustBePositive = 7,
-  CampaignGoalNotReached = 8,
-  ContributionNotFound = 9,
-  CampaignAlreadyExists = 10,
-}
+stellar contract deploy \
+  --wasm contracts/target/wasm32v1-none/release/baf_crowdfunding_contract.optimized.wasm \
+  --source admin \
+  --network testnet \
+  -- \
+  --admin <G....ADMIN_PUBKEY> \
+  --token <XLM_ASSET_ID>
 ```
 
 ---
 
-## Funciones del contrato desde el Stellar CLI
+## Public methods
 
-### Create Campaign
+- `__constructor(env: Env, admin: Address, token: Address) -> Result<(), Error>` — set admin and token. One-time.
+- `create_campaign(env: Env, campaign: Campaign) -> Result<(), Error>` — admin‑only; validates milestones add up to `goal`, sets `min_donation`, initializes statuses and counters.
+- `get_campaign(env: Env, campaign_id: u32) -> Result<Campaign, Error>` — read campaign by id.
+- `get_max_campaign_index(env: Env) -> Result<u32, Error>` — last issued id.
+- `contribute(env: Env, contributor: Address, campaign_id: u32, amount: i128) -> Result<(), Error>` — contributor‑auth, enforces `min_donation`, caps at remaining, transfers tokens to contract, updates totals and supporters.
+- `refund(env: Env, contributor: Address, campaign_id: u32) -> Result<(), Error>` — contributor‑auth, allowed unless `CampaignStatus::COMPLETE`; returns funds and updates totals/supporters.
+- `withdraw(env: Env, campaign_id: u32, milestone_id: u32) -> Result<(), Error>` — milestone.receiver auth; requires campaign fully funded and milestone approved and available; transfers to receiver; marks milestone `FREED`.
+- `add_judge(env: Env, user: Address) -> Result<(), Error>` — admin‑only; grants `Role::Judge`.
+- `remove_judge(env: Env, user: Address) -> Result<(), Error>` — admin‑only; revokes judge.
+- `approve_liberation(env: Env, sender: Address, campaign_id: u32, milestone_id: u32) -> Result<(), Error>` — judge‑only; marks milestone approved.
+
+### Events
+
+- `contract_initialized(admin, token)`
+- `add_campaign(campaign_id, Campaign)`
+- `add_contribute(contributor, (campaign_id, amount))`
+- `refund(contributor, (campaign_id, amount))`
+- `withdraw(campaign_id, amount)`
+
+### Errors (subset)
+
+`ContractInitialized`, `MathOverflow`, `MathUnderflow`, `CampaignNotFound`, `ContributionBelowMinimum`, `AmountMustBePositive`, `CampaignGoalNotReached`, `MilestonesTotalMismatch`, `MilestoneNotFound`, `MilestoneNotAvailableToWithdraw`, `CampaignNotRunning`, `CampaignNotRefundable`, `Unauthorised`.
+
+---
+
+## Example CLI calls
 
 ```bash
-    stellar contract deploy `
-        --wasm target/wasm32v1-none/release/<contract_name>.optimized.wasm `
-        --source admin `
-        --network testnet `
-        -- create_campaign `
-        --creator <creator_public_key>
-        --goal 100000000
-```
+# contribute
+stellar contract invoke \
+  --id <CONTRACT_ID> \
+  --source <key> \
+  --network testnet \
+  -- \
+  contribute --contributor <G...> --campaign_id 0 --amount 10000000
 
-### Get Campaign
-
-```bash
-    stellar contract deploy `
-        --wasm target/wasm32v1-none/release/<contract_name>.optimized.wasm `
-        --source admin `
-        --network testnet `
-        -- get_campaign `
-        --campaign_address <creator_public_key>
-```
-
-### Add Contribution
-
-```bash
-    stellar contract deploy `
-        --wasm target/wasm32v1-none/release/<contract_name>.optimized.wasm `
-        --source <contributor_secret_key> `
-        --network testnet `
-        -- contribute `
-        --contributor <contributor_public_key>
-        --campaign_address <creator_public_key>
-        --amount 100000000
+# refund
+stellar contract invoke \
+  --id <CONTRACT_ID> \
+  --source <key> \
+  --network testnet \
+  -- \
+  refund --contributor <G...> --campaign_id 0
 ```
 
 ---
 
-## Nota:
+## Development notes
 
-| XLM     | Stroops       | Explicación                             |
-| ------- | ------------- | --------------------------------------- |
-| 1 XLM   | 10,000,000    | 1 XLM equivale a 10 millones de stroops |
-| 5 XLM   | 50,000,000    | 5 XLM en stroops                        |
-| 10 XLM  | 100,000,000   | 10 XLM en stroops                       |
-| 100 XLM | 1,000,000,000 | 100 XLM en stroops                      |
-
----
-
-## Conclusion
-
-Este contrato fue desarrollado exclusivamente con fines educativos dentro del contexto del bootcamp, sirviendo como una base práctica para entender los conceptos fundamentales de Soroban y el desarrollo de contratos inteligentes. No está diseñado ni recomendado para ser utilizado en entornos de producción sin antes pasar por una auditoría exhaustiva que garantice su seguridad y robustez. A lo largo del workshop, se profundizará en aspectos clave como la arquitectura del contrato, las mejores prácticas de seguridad y el manejo adecuado de estados, para que los participantes puedan construir soluciones más confiables y escalables.
+- All math uses checked add/sub to avoid overflow/underflow; errors are surfaced via `Error` enum.
+- Token operations use `soroban_sdk::token::Client` with the token address set at initialization.
+- Storage keys are kept under `DataKey` with typed namespaces for campaigns, contributions, roles and counters.
