@@ -1,0 +1,17 @@
+export const creators = [
+  {
+    label: "Creator 1",
+    publicKey: "GDDPELOKSEE3G4P7FVMOJBZZ4WEMSQAKM2LNRWNRJBC7KYT5TPV2YAMA",
+    secretKey: "SBHCANM7FHBDING4RMZ3MCWIKGCHOQCEHFPAEVQP6GDFWL7LCD55M3QD",
+  },
+  {
+    label: "Creator 2",
+    publicKey: "GCREATOR2ADDRESS0987654321",
+    secretKey: "GCREATOR2SECRETKEY0987654321",
+  },
+  {
+    label: "Creator 3",
+    publicKey: "GCREATOR3ADDRESS5678901234",
+    secretKey: "GCREATOR3SECRETKEY5678901234",
+  },
+];
