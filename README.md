@@ -26,6 +26,10 @@ ImpulsAr is our Stellar GIVE Hackathon 2025 project. It lets KYC’d users reque
 
 ### Lifecycle highlights
 
+## Frontend
+![First preview](images/preview.png)
+![Second Preview](images/preview2.png)
+
 ```mermaid
 sequenceDiagram
   autonumber
