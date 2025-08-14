@@ -2,16 +2,20 @@ use soroban_sdk::{contract, contractimpl, Env, Address};
 
 use crate::{
     methods::{
-        add_campaign::add_campaign,
-        contribute::contribute,
-        get_campaign::get_campaign,
-        initialize::initialize,
-        refund::refund,
+        add_campaign::add_campaign, 
+        contribute::contribute, 
+        get_campaign::get_campaign, 
+        initialize::initialize, 
+        judge_managing::{
+            remove_judge, 
+            set_judge
+        }, 
+        refund::refund, 
         withdraw::withdraw
     },
     storage::{
         campaign::get_id, 
-        structs::campaign::Campaign,
+        structs::campaign::Campaign, 
         types::error::Error
     },
 };
@@ -47,5 +51,13 @@ impl CrowdfundingContract {
 
     pub fn refund(env: Env, contributor: Address, campaign_id: u32) -> Result<(), Error> {
         refund(&env, contributor, campaign_id)
+    }
+
+    pub fn add_judge(env: Env, user: Address) -> Result<(), Error> {
+        set_judge(env, user)
+    }
+
+    pub fn remove_judge(env: Env, user: Address) -> Result<(), Error> {
+        remove_judge(env, user)
     }
 }

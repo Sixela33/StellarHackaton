@@ -1,4 +1,6 @@
-use soroban_sdk::{contracttype, Address, String};
+use soroban_sdk::{contracttype, Address};
+
+use crate::storage::types::roles::Role;
 
 #[derive(Clone)]
 #[contracttype]
@@ -7,7 +9,7 @@ pub enum DataKey {
     Token,
     Campaign(u32), // Para buscar campañas por su administrador
     Contribution(u32, Address), // (campaign_id, contributor)
-    Role(String, Address), // (user_address, campaign_id)
+    Role(Role, Address), // (user_address, campaign_id)
     CampainID
 }
 #[derive(Clone, Debug, PartialEq, Eq)]

@@ -5,3 +5,4 @@ pub mod token;
 pub mod withdraw;
 pub mod refund;
 pub mod get_campaign;
+pub mod judge_managing;
