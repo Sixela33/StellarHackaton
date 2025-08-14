@@ -21,4 +21,5 @@ pub enum Error {
 	CampaignAlreadyRunning = 14,
 	CampaignNotRunning = 15,
 	CampaignNotRefundable = 16,
+	Unauthorised = 17
 }

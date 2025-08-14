@@ -6,17 +6,21 @@ use crate::{
         contribute::contribute, 
         get_campaign::get_campaign, 
         initialize::initialize, 
-        judge_managing::{
-            remove_judge, 
-            set_judge
-        }, 
         refund::refund, 
         withdraw::withdraw
     },
     storage::{
+        admin::get_admin, 
         campaign::get_id, 
+        roles::{
+            remove_role, 
+            set_role
+        }, 
         structs::campaign::Campaign, 
-        types::error::Error
+        types::{
+            error::Error, 
+            roles::Role
+        }
     },
 };
 
@@ -54,10 +58,18 @@ impl CrowdfundingContract {
     }
 
     pub fn add_judge(env: Env, user: Address) -> Result<(), Error> {
-        set_judge(env, user)
+        let admin = get_admin(&env);
+        admin.require_auth();
+
+        set_role(&env, Role::Judge, user);
+        Ok(())
     }
 
     pub fn remove_judge(env: Env, user: Address) -> Result<(), Error> {
-        remove_judge(env, user)
+        let admin = get_admin(&env);
+        admin.require_auth();
+
+        remove_role(&env, Role::Judge, user);
+        Ok(())
     }
 }

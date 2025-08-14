@@ -4,5 +4,6 @@ use soroban_sdk::contracttype;
 #[contracttype]
 #[repr(u32)]
 pub enum Role {
-    JUDGE = 0,
+    Admin = 0,
+    Judge = 1,
 }
