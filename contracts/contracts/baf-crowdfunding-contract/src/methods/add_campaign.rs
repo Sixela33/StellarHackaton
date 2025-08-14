@@ -24,8 +24,6 @@ pub fn add_campaign(env: &Env, mut campaign: Campaign) -> Result<(), Error> {
 
     current_admin.require_auth();
     
-    let campaign_id = get_next_id(env)?;
-
     // Validate positive goal and min_donation
     if campaign.min_donation <= 0 { 
         return Err(Error::AmountMustBePositive); 
@@ -56,6 +54,7 @@ pub fn add_campaign(env: &Env, mut campaign: Campaign) -> Result<(), Error> {
     campaign.total_raised = 0;
     campaign.supporters = 0;
     campaign.status = CampaignStatus::RUNNING;
+    let campaign_id: u32 = get_next_id(env)?;
     set_campaign(env, &campaign_id, &campaign);
     events::campaign::add_campaign(&env, &campaign_id, &campaign);
     Ok(())

@@ -6,3 +6,8 @@ mod methods;
 mod storage;
 
 pub use contract::CrowdfundingContract;
+
+mod tests {
+    #[cfg(test)]
+    mod test;
+}

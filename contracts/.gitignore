@@ -6,3 +6,5 @@ target
 .stellar
 
 packages
+
+/contracts/baf-crowdfunding-contract/test_snapshots
