@@ -39,7 +39,7 @@ pub fn contribute(env: &Env, contributor: Address, campaign_id: u32, amount: i12
         return Err(Error::ContributionBelowMinimum);
     }
 
-    let remaining = campaign.goal - campaign.total_raised;
+    let remaining = campaign.goal.checked_sub(campaign.total_raised).ok_or(Error::MathUnderflow)?;
     if remaining <= 0 {
         return Err(Error::CampaignGoalExceeded);
     }
