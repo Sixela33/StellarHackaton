@@ -62,6 +62,7 @@ interface Update {
   author: string;
 }
 
+
 interface User {
   totalInvested: number;
   activeInvestments: number;
@@ -76,6 +77,10 @@ const Dashboard: React.FC = () => {
     avatar: '/api/placeholder/100/100',
     name: 'John Doe'
   });
+  
+  if(user) {
+    console.log("si")
+  }
   
   const [campaigns, setCampaigns] = useState<Campaign[]>([
     {
