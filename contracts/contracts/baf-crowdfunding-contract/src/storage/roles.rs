@@ -17,5 +17,5 @@ pub(crate) fn set_role(env: &Env, role: String, user: Address) {
 pub(crate) fn remove_role(env: &Env, role: String, user: Address) {
     let key = DataKey::Role(role, user);
 
-    env.storage().instance().set(&key, &false);
+    env.storage().instance().remove(&key);
 }

@@ -25,10 +25,10 @@ pub fn refund(env: &Env, contributor: Address, campaign_id: u32) -> Result<(), E
 
     let mut campaign = get_campaign(env, &campaign_id)?;
 
-    // Not allowing to refund once the funding is complete
-    if !(campaign.status == CampaignStatus::RUNNING) {
-        return Err(Error::CampaignAlreadyRunning)
-    } 
+    // Not allowing refund once funding is complete
+    if campaign.status == CampaignStatus::COMPLETE {
+        return Err(Error::CampaignNotRefundable)
+    }
 
     if !has_contribution(env, &campaign_id, &contributor) {
         return Err(Error::ContributionNotFound);

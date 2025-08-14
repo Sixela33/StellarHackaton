@@ -18,5 +18,7 @@ pub enum Error {
 	MilestonesTotalMismatch = 11,
 	MilestoneNotFound = 12,
 	MilestoneNotAvailableToWithdraw = 13,
-	CampaignAlreadyRunning = 14
+	CampaignAlreadyRunning = 14,
+	CampaignNotRunning = 15,
+	CampaignNotRefundable = 16,
 }

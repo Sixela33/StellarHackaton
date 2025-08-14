@@ -33,9 +33,10 @@ pub(crate) fn remove_campaign(env: &Env, campaign_id: &u32) {
 pub(crate) fn get_next_id(env: &Env) -> Result<u32, Error> {
     let key = DataKey::CampainID;
 
-    let id = env.storage().instance().get(&key).unwrap_or(0);
+    let id: u32 = env.storage().instance().get(&key).unwrap_or(0);
 
-    env.storage().instance().set(&key, &(&id + 1));
+    let new_id = id.checked_add(1).ok_or(Error::MathOverflow)?;
+    env.storage().instance().set(&key, &new_id);
 
     Ok(id)
 }

@@ -7,7 +7,7 @@ pub(crate) fn add_campaign(env: &Env, campaign_id: &u32, campaign: &Campaign) {
     env.events().publish(topics, campaign.clone());
 }
 
-pub (crate) fn withdraw(env: &Env, campaign_id: &u32, total_raised: i128) {
+pub (crate) fn withdraw(env: &Env, campaign_id: &u32, amount: i128) {
     let topics = (Symbol::new(env, "withdraw"), campaign_id);
-    env.events().publish(topics, &total_raised);
+    env.events().publish(topics, &amount);
 }

@@ -32,7 +32,7 @@ pub fn contribute(env: &Env, contributor: Address, campaign_id: u32, amount: i12
     let mut campaign = get_campaign(env, &campaign_id)?;
 
     if campaign.status != CampaignStatus::RUNNING {
-        return Err(Error::CampaignNotFound);
+        return Err(Error::CampaignNotRunning);
     }
 
     if amount < campaign.min_donation {
