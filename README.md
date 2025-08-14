@@ -1,4 +1,4 @@
-# ImpulsAr — Donation Proposals on Stellar (Soroban)
+# ImpulsAr — Donation Proposals on Stellar
 
 ImpulsAr is our Stellar GIVE Hackathon 2025 project. It lets KYC’d users request to list donation proposals. An admin reviews each request and, once approved, creates an on‑chain crowdfunding campaign secured by a Soroban smart contract with milestone-based releases. Donors contribute using a chosen token (e.g., XLM on Soroban). Funds can be refunded while a campaign is still running, and are withdrawn by milestone receivers only after judge approval.
 
@@ -10,7 +10,7 @@ ImpulsAr is our Stellar GIVE Hackathon 2025 project. It lets KYC’d users reque
 
 ## What we built
 
-- **Listing workflow**: KYC’d users submit requests in the app. The backend stores them off‑chain; an admin reviews and, if approved, creates the campaign on-chain by calling the contract.
+- **Listing workflow**: users submit requests in the app. and an admin reviews and, if approved, creates the campaign on-chain by calling the contract.
 - **Milestone escrow**: Each campaign defines milestones, each with an amount and receiver. Judges approve liberations; receivers withdraw only when the campaign is fully funded and the milestone is available and approved.
 - **Donor protections**: Minimum donation enforced; refunds allowed while the campaign hasn’t completed; strict math checks avoid overflows/underflows.
 
