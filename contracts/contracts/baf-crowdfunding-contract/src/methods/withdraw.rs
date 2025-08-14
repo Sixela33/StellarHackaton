@@ -1,4 +1,4 @@
-use soroban_sdk::{Address, Env};
+use soroban_sdk::{Env};
 
 use crate::{
     events,
@@ -6,39 +6,55 @@ use crate::{
     storage::{
         campaign::{
             get_campaign, 
-            remove_campaign
+            set_campaign
         }, 
-        contribution::remove_contribution, 
-        types::error::Error
+        types::{
+            error::Error, 
+            storage::{
+                CampaignStatus, 
+                MilestoneStatus
+            }}
     }
 };
 
-pub fn withdraw(env: &Env, campaign_id: u32, sender: Address) -> Result<(), Error> {
+pub fn withdraw(env: &Env, campaign_id: u32, milestone_id: u32) -> Result<(), Error> {
 
-    let campaign = get_campaign(env, &campaign_id)?;
+    let mut campaign = get_campaign(env, &campaign_id)?;
 
-    // TODO: Chech the sender can claim the milestone
+    let mut milestone = campaign.milestones.get(milestone_id).ok_or(Error::MilestoneNotFound)?.clone();
+    milestone.reciever.require_auth();
+    if milestone.amount <= 0 { return Err(Error::AmountMustBePositive); }
 
     if campaign.total_raised != campaign.goal {
         return Err(Error::CampaignGoalNotReached);
     }
 
+    if !(milestone.status == MilestoneStatus::AVAILABLE) {
+        return Err(Error::MilestoneNotAvailableToWithdraw)
+    }
+
+    let new_distributed = campaign.distributed.checked_add(milestone.amount).ok_or(Error::MathOverflow)?;
+    if new_distributed > campaign.goal { 
+        return Err(Error::CampaignGoalExceeded); 
+    }
+
+    campaign.distributed = new_distributed;
+    if new_distributed == campaign.goal { 
+        campaign.status = CampaignStatus::COMPLETE; 
+    }
+
+    milestone.status = MilestoneStatus::FREED;
+    campaign.milestones.set(milestone_id, milestone.clone());
+    set_campaign(env, &campaign_id, &campaign);
+
     token_transfer(
         &env,
         &env.current_contract_address(),
-        &sender,
-        &campaign.total_raised
+        &milestone.reciever, 
+        &milestone.amount
     )?;
 
-    remove_campaign(env, &campaign_id);
-    let contributors = campaign.supporters_list;
-    for i in 0 .. contributors.len() {
-        if let Some(contributor) = contributors.get(i) {
-            remove_contribution(env, &campaign_id, &contributor);
-        }
-    }
-
-    events::campaign::withdraw(&env, &campaign_id, campaign.total_raised);
+    events::campaign::withdraw(&env, &campaign_id, milestone.amount);
     
     Ok(())   
 }

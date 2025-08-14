@@ -41,8 +41,8 @@ impl CrowdfundingContract {
         contribute(&env, contributor, campaign_id, amount)
     }
 
-    pub fn withdraw(env: Env, campaign_id: u32, reciever: Address) -> Result<(), Error> {
-        withdraw(&env, campaign_id, reciever)
+    pub fn withdraw(env: Env, campaign_id: u32, milestone_id: u32) -> Result<(), Error> {
+        withdraw(&env, campaign_id, milestone_id)
     }
 
     pub fn refund(env: Env, contributor: Address, campaign_id: u32) -> Result<(), Error> {

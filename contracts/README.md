@@ -71,7 +71,7 @@ stellar keys generate --global alice --network testnet --fund
 
 ```bash
 # Si tienes rustc 1.85 o superior
-   stellar contract optimize --wasm target/wasm32v1-none/release/<contract_name>.wasm
+   stellar contract optimize --wasm target/wasm32v1-none/release/baf_crowdfunding_contract.wasm
 
 # Si tienes rustc menor a 1.85
  stellar contract optimize --wasm target/wasm32-unknown-unknown/release/<contract_name>.wasm
@@ -103,12 +103,12 @@ _Nota: devuelve `GDXAECCYWYW2QKQDTGVQUTC6CQEQR3REC3PKZKXOP76PJJ6V3FRYXCO3`_
 
 ```bash
     stellar contract deploy `
-        --wasm target/wasm32v1-none/release/<contract_name>.optimized.wasm `
+        --wasm target/wasm32v1-none/release/baf_crowdfunding_contract.optimized.wasm `
         --source admin `
         --network testnet `
         -- `
-        --admin <admin_public_key>
-        --token <token_address>
+        --admin GAMM7KCH3NE6NDV72WFZJ4WQGBDQC4DF5B665DA4L2UD77PSQY3KUWZO
+        --token CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC
 ```
 
 _Nota: devuelve `CBAH4Z5CNELXMN7PVW2SAAB6QVOID34SAQAFHJF7Q7JUNACRQEJX66MB`_

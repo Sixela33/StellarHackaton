@@ -17,7 +17,7 @@ pub(crate) fn set_contribution(env: &Env, campaign_id: &u32, contributor: &Addre
 pub(crate) fn get_contribution(env: &Env, campaign_id: &u32, contributor: &Address) -> i128 {
     let key = DataKey::Contribution(campaign_id.clone(), contributor.clone());
 
-    env.storage().instance().get(&key).unwrap()
+    env.storage().instance().get(&key).unwrap_or(0i128)
 }
 
 pub(crate) fn remove_contribution(env: &Env, campaign_id: &u32, contributor: &Address) {

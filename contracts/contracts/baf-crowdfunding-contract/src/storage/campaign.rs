@@ -22,11 +22,13 @@ pub(crate) fn get_campaign(env: &Env, campaign_id: &u32) ->  Result<Campaign, Er
     env.storage().instance().get(&key).ok_or(Error::CampaignNotFound)
 }
 
+/*
 pub(crate) fn remove_campaign(env: &Env, campaign_id: &u32) {
     let key = DataKey::Campaign(campaign_id.clone());
 
     env.storage().instance().remove(&key);
 }
+*/
 
 pub(crate) fn get_next_id(env: &Env) -> Result<u32, Error> {
     let key = DataKey::CampainID;

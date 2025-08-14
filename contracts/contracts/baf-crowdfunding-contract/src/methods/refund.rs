@@ -13,7 +13,10 @@ use crate::{
             has_contribution, 
             remove_contribution
         }, 
-        types::error::Error
+        types::{
+            error::Error, 
+            storage::CampaignStatus
+        }
     }
 };
 
@@ -22,17 +25,25 @@ pub fn refund(env: &Env, contributor: Address, campaign_id: u32) -> Result<(), E
 
     let mut campaign = get_campaign(env, &campaign_id)?;
 
+    // Not allowing to refund once the funding is complete
+    if !(campaign.status == CampaignStatus::RUNNING) {
+        return Err(Error::CampaignAlreadyRunning)
+    } 
+
     if !has_contribution(env, &campaign_id, &contributor) {
         return Err(Error::ContributionNotFound);
     }
 
     let amount = get_contribution(env, &campaign_id, &contributor);
+    if amount <= 0 { 
+        return Err(Error::ContributionNotFound); 
+    }
     token_transfer(&env, &env.current_contract_address(), &contributor, &amount)?;
 
-    campaign.total_raised -= amount;
-    campaign.supporters -= 1;
-
+    campaign.total_raised = campaign.total_raised.checked_sub(amount).ok_or(Error::MathUnderflow)?;
     remove_contribution(env, &campaign_id, &contributor);
+    campaign.supporters = campaign.supporters.saturating_sub(1);
+
     set_campaign(env, &campaign_id, &campaign);
     events::refund::refund(&env, &contributor, &campaign_id, &amount);
 
