@@ -45,6 +45,12 @@ classDiagram
 
 ---
 
+## Run Tests
+
+```bash
+cargo test
+```
+
 ## Build and deploy
 
 1) Install toolchain targets:
