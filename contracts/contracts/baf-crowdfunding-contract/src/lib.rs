@@ -9,5 +9,5 @@ pub use contract::CrowdfundingContract;
 
 mod tests {
     #[cfg(test)]
-    mod test;
+    mod test_base;
 }

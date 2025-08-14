@@ -19,7 +19,7 @@ use crate::{
     },
 };
 
-pub fn add_campaign(env: &Env, mut campaign: Campaign, requres_aproval: bool) -> Result<(), Error> {
+pub fn add_campaign(env: &Env, mut campaign: Campaign) -> Result<(), Error> {
     let current_admin = get_admin(env);
 
     current_admin.require_auth();
@@ -45,7 +45,6 @@ pub fn add_campaign(env: &Env, mut campaign: Campaign, requres_aproval: bool) ->
     for milestone in campaign.milestones.iter() {
         let mut temp_milestone = milestone.clone();
         temp_milestone.status = MilestoneStatus::AVAILABLE;
-        temp_milestone.approved = !requres_aproval; // If this is set to true beneficiaries are going to be able to withdraw without restrictions
         normalized.push_back(temp_milestone);
     }
     campaign.milestones = normalized;

@@ -35,7 +35,7 @@ impl CrowdfundingContract {
     }
 
     pub fn create_campaign(env: Env, campaign: Campaign) -> Result<(), Error> {
-        add_campaign(&env, campaign, false)
+        add_campaign(&env, campaign)
     }
 
     pub fn get_campaign(env: Env, campaign_id: u32) -> Result<Campaign, Error> {

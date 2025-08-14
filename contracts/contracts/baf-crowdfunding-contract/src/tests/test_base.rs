@@ -45,12 +45,12 @@ fn deploy_contract<'a>(env: &Env) -> (CrowdfundingContractClient<'a>, Address, (
     (client, admin, token)
 }
 
-fn make_milestone(env: &Env, description: &str, amount: i128, reciever: &Address) -> Milestone {
+fn make_milestone(env: &Env, description: &str, amount: i128, reciever: &Address, is_approved: bool) -> Milestone {
     Milestone {
         description: String::from_str(env, description),
         status: MilestoneStatus::REQUESTED,
         evidence: String::from_str(env, ""),
-        approved: false,
+        approved: is_approved,
         amount,
         reciever: reciever.clone(),
     }
@@ -78,8 +78,8 @@ fn test_create_campaign_success_and_normalization() {
 
     let milestones = vec![
         &env,
-        make_milestone(&env, "m1", 100, &r1),
-        make_milestone(&env, "m2", 200, &r2),
+        make_milestone(&env, "m1", 100, &r1, true),
+        make_milestone(&env, "m2", 200, &r2, true),
     ];
     let goal = 300i128;
     let min_donation = 50i128;
@@ -113,13 +113,13 @@ fn test_create_campaign_validation_errors() {
     let recv = Address::generate(&env);
 
     // min_donation <= 0
-    let milestones = vec![&env, make_milestone(&env, "m1", 100, &recv)];
+    let milestones = vec![&env, make_milestone(&env, "m1", 100, &recv, true)];
     let bad_campaign = make_campaign(&env, 100, 0, milestones);
     let res = client.try_create_campaign(&bad_campaign);
     assert!(res.is_err());
 
     // milestone amount <= 0
-    let milestones = vec![&env, make_milestone(&env, "m1", 0, &recv)];
+    let milestones = vec![&env, make_milestone(&env, "m1", 0, &recv, true)];
     let bad_campaign = make_campaign(&env, 100, 10, milestones);
     let res = client.try_create_campaign(&bad_campaign);
     assert!(res.is_err());
@@ -128,8 +128,8 @@ fn test_create_campaign_validation_errors() {
     // sum(milestones) != goal
     let milestones = vec![
         &env,
-        make_milestone(&env, "m1", 100, &recv),
-        make_milestone(&env, "m2", 100, &recv),
+        make_milestone(&env, "m1", 100, &recv, true),
+        make_milestone(&env, "m2", 100, &recv, true),
     ];
     let bad_campaign = make_campaign(&env, 300, 10, milestones);
     let res = client.try_create_campaign(&bad_campaign);
@@ -147,7 +147,7 @@ fn test_get_max_campaign_index_behavior() {
 
     // After first campaign (id=0), index stored is next id (1)
     let recv = Address::generate(&env);
-    let milestones = vec![&env, make_milestone(&env, "m1", 10, &recv)];
+    let milestones = vec![&env, make_milestone(&env, "m1", 10, &recv, true)];
     let campaign = make_campaign(&env, 10, 1, milestones);
     client.create_campaign(&campaign);
     assert_eq!(client.get_max_campaign_index(), 1);
@@ -166,8 +166,8 @@ fn test_contribute_happy_path_and_goal_completion() {
     let r1 = Address::generate(&env);
     let milestones = vec![
         &env,
-        make_milestone(&env, "m1", 100, &r1),
-        make_milestone(&env, "m2", 200, &r1),
+        make_milestone(&env, "m1", 100, &r1, true),
+        make_milestone(&env, "m2", 200, &r1, true),
     ];
     let campaign = make_campaign(&env, 300, 50, milestones);
     client.create_campaign(&campaign);
@@ -200,7 +200,7 @@ fn test_contribute_errors() {
 
     // Create small campaign
     let r = Address::generate(&env);
-    let milestones = vec![&env, make_milestone(&env, "m1", 10, &r)];
+    let milestones = vec![&env, make_milestone(&env, "m1", 10, &r, true)];
     let campaign = make_campaign(&env, 10, 5, milestones);
     client.create_campaign(&campaign);
 
@@ -232,7 +232,7 @@ fn test_refund_success_and_restrictions() {
 
     // Campaign goal 200, min 50
     let recv = Address::generate(&env);
-    let milestones = vec![&env, make_milestone(&env, "m", 200, &recv)];
+    let milestones = vec![&env, make_milestone(&env, "m", 200, &recv, true)];
     let campaign = make_campaign(&env, 200, 50, milestones);
     client.create_campaign(&campaign);
 
@@ -270,8 +270,8 @@ fn test_withdraw_flow_and_errors() {
     let r2 = Address::generate(&env);
     let milestones = vec![
         &env,
-        make_milestone(&env, "m1", 100, &r1),
-        make_milestone(&env, "m2", 200, &r2),
+        make_milestone(&env, "m1", 100, &r1, true),
+        make_milestone(&env, "m2", 200, &r2, true),
     ];
     let campaign = make_campaign(&env, 300, 10, milestones);
     client.create_campaign(&campaign);
