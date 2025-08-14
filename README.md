@@ -51,27 +51,6 @@ sequenceDiagram
 
 ![Second Preview](images/preview2.png)
 
-```mermaid
-sequenceDiagram
-  autonumber
-  participant U as User (Donor)
-  participant F as Frontend
-  participant B as Backend
-  participant A as Admin
-  participant J as Judge
-  participant C as Contract
-
-  U->>F: Submit listing request
-  F->>B: Store request
-  A->>B: Review + approve
-  A->>C: __constructor (once) / create_campaign
-  U->>C: contribute(campaignId, amount)
-  J->>C: approve_liberation(campaignId, milestoneId)
-  Note right of C: On full funding and approval
-  C-->>U: refundable until COMPLETE
-  Milestone Receiver->>C: withdraw(campaignId, milestoneId)
-```
-
 ## Building and deploying the contract
 
 Prerequisites: Rust toolchain + Soroban target + Stellar CLI.
